@@ -14,7 +14,7 @@ class Response {
 
 export async function getStats(ticker: string) {
     let status = new Response();
-    const url = new URL('/api/stockpredictionapp/performance', BASE_API_URL);
+    const url = new URL('/performance', BASE_API_URL);
     try {
         const response = await axios
             .post(url.href, {ticker});

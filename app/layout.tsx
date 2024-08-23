@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="bg-zinc-900 text-gray-200">
-      <body className="antialiased max-w-4xl mx-auto mt-8 lg:mx-auto">
+      <body className="antialiased max-w-6xl mx-auto mt-8 lg:mx-auto">
         <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
           {children}
         </main>

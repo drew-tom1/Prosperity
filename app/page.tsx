@@ -1,6 +1,6 @@
 "use client";
 
-import { getStats } from "@/components/handles";
+import { getStats } from "@/api/handles";
 import { Chart } from "chart.js";
 import { useState } from "react";
 
@@ -10,8 +10,6 @@ export default function Home() {
 
   async function handleStats() {
     const response = await getStats(ticker);
-    console.log(response)
-    console.log(ticker)
     console.log(stats)
     if (!response.error) {
       setStats(response.responseData);
@@ -22,9 +20,9 @@ export default function Home() {
 
   return (
     <main className="p-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative border border-gray-700 rounded-lg p-4 col-span-2">
-          <div className="absolute -top-4 left-4 bg-zinc-900 px-2 text-lg text-cyan-200">
+      <div className="grid grid-cols-4 gap-5">
+        <div className="relative border border-gray-700 rounded-lg p-4 col-span-3">
+          <div className="absolute -top-4 left-2 bg-zinc-900 px-2 text-lg text-indigo-400">
             🏢 ticker
           </div>
           <input
@@ -35,38 +33,31 @@ export default function Home() {
             onChange={(e) => setTicker(e.target.value)}
             className="rounded"
           />
-          <button type="button" className="rounded bg-zinc-800 mx-4 hover:scale-105" onClick={handleStats}>Search</button>
-          <h1 className="text-right">{ticker}</h1>
+          <button type="button" className="rounded mx-4 hover:scale-105 hover:bg-zinc-800 p-1 duration-300" onClick={handleStats}>Search</button>
         </div>
-        <div className="relative border border-gray-700 rounded-lg p-4 col-span-2">
-          <div className="absolute -top-4 left-4 bg-zinc-900 px-2 text-lg text-cyan-200">
+        <div className="relative border border-gray-700 rounded-lg p-4 row-span-3">
+          <div className="absolute -top-4 left-2 bg-zinc-900 px-2 text-lg text-indigo-400">
+            📈 current stats
+          </div>
+          <div className="relative border border-gray-700 rounded-lg p-4 row-span-3 my-4">
+            market performance:
+          </div>
+          <div className="relative border border-gray-700 rounded-lg p-4 row-span-3 my-4">
+            <thead>dividend information:</thead>
+          </div>
+        </div>
+        <div className="relative border border-gray-700 rounded-lg p-4 col-span-3">
+          <div className="absolute -top-4 left-2 bg-zinc-900 px-2 text-lg text-indigo-400">
             💡 prediction graphs
           </div>
         </div>
-        <div className="relative border border-gray-700 rounded-lg p-4 col-span-2">
-          <div className="absolute -top-4 left-4 bg-zinc-900 px-2 text-lg text-cyan-200">
+        <div className="relative border border-gray-700 rounded-lg p-4 col-span-3">
+          <div className="absolute -top-4 left-2 bg-zinc-900 px-2 text-lg text-indigo-400">
             🤖 advice
           </div>
         </div>
-        <div className="relative border border-gray-700 rounded-lg p-4 row-span-2">
-          <div className="absolute -top-4 left-4 bg-zinc-900 px-2 text-lg text-cyan-200">
-            📈 current stats
-          </div>
-          {stats.map((val, index) => {
-            return (
-              <ul className="mt-4 space-y-2 font-semibold" key={index}>
-                <li>Open:</li>
-                <li>Close:</li>
-                <li>High:</li>
-                <li>Low:</li>
-                <li>Market Cap:</li>
-                <li>Dividend Yield:</li>
-              </ul>
-            );
-          })}
-        </div>
-        <div className="relative border border-gray-700 rounded-lg p-4 row-span-2">
-          <div className="absolute -top-4 left-4 bg-zinc-900 px-2 text-lg text-cyan-200">
+        <div className="relative border border-gray-700 rounded-lg p-4 col-span-4">
+          <div className="absolute -top-4 left-2 bg-zinc-900 px-2 text-lg text-indigo-400">
             📰 recent headlines
           </div>
         </div>
