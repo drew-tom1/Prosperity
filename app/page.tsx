@@ -69,37 +69,49 @@ export default function Home() {
           {stats ? (
             <>
               <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
-                <thead>{stats.shortName}</thead>
-                <table>
+              <table className="w-full">
+                  <tbody>
+                  <thead className="font-bold">{stats.shortName}</thead>
                     <tr>
-                      Current: <td>{"$" + stats.currentPrice}</td>
-                    </tr>
-                    <tr>
-                      Low (D): <td>{"$" + stats.dayLow}</td>
-                    </tr>
-                    <tr>
-                      High (D): <td>{"$" + stats.dayHigh}</td>
+                      <td>Current:</td>
+                      <td>{"$" + stats.currentPrice}</td>
                     </tr>
                     <tr>
-                      Open (D): <td>{"$" + stats.open}</td>
+                      <td>Low (D):</td>
+                      <td>{"$" + stats.dayLow}</td>
                     </tr>
                     <tr>
-                      Close (D): <td>{"$" + stats.previousClose}</td>
-                    </tr>
-                  </table>
-                </div>
-              <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
-                <thead>dividend information</thead>
-                <table>
-                  <tr>
-                      Yield: <td>{stats.dividendYield + "%"}</td>
+                      <td>High (D):</td>
+                      <td>{"$" + stats.dayHigh}</td>
                     </tr>
                     <tr>
-                      Rate <td>{"$" + stats.dividendRate}</td>
+                      <td>Open (D):</td>
+                      <td>{"$" + stats.open}</td>
                     </tr>
                     <tr>
-                      Payout Ratio: <td>{"$" + stats.payoutRatio}</td>
+                      <td>Close (D):</td>
+                      <td>{"$" + stats.previousClose}</td>
                     </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="relative border border-primary rounded-lg p-4 my-4">
+                <div className="font-bold">Dividend Information</div>
+                <table className="w-full">
+                  <tbody>
+                    <tr>
+                      <td>Yield:</td>
+                      <td>{stats.dividendYield + "%"}</td>
+                    </tr>
+                    <tr>
+                      <td>Rate:</td>
+                      <td>{"$" + stats.dividendRate}</td>
+                    </tr>
+                    <tr>
+                      <td>Payout Ratio:</td>
+                      <td>{"$" + stats.payoutRatio}</td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             </>
@@ -107,6 +119,7 @@ export default function Home() {
             <p>No data available. Please search for a ticker</p>
           )}
         </div>
+
         <div className="relative border border-primary rounded-lg p-4 col-span-3">
           <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
             🤖 advice
