@@ -1,21 +1,39 @@
 "use client";
 
-import { getStats, CompanyStats } from "@/app/api/handles";
+import { getStats, CompanyStats, CompanyNews, getHeadlines } from "@/app/api/handles";
 import { Chart } from "chart.js";
 import { useState } from "react";
 
 export default function Home() {
   const [ticker, setTicker] = useState("");
   const [stats, setStats] = useState<CompanyStats | null>(null);
+  const [headlines, setHeadlines] = useState<CompanyNews | null>(null);
 
   async function handleStats() {
     const response = await getStats(ticker);
     if (!response.error) {
-      setStats(response.responseData);
+      const renderedStats = { ...response.responseData };
+      if (renderedStats.dividendYield !== undefined) {
+        renderedStats.dividendYield *= 100;
+      }
+      setStats(renderedStats);
       return true;
     }
     return false;
   }
+  async function handleHeadlines () {
+    const response = await getHeadlines(ticker);
+    if (!response.error) {
+      setHeadlines(response.responseData)
+      return true
+    }
+    return false;
+  }
+
+  async function handleOptions () {
+    handleHeadlines();
+    handleStats();
+  };
 
   return (
     <main className="p-4">
@@ -35,7 +53,7 @@ export default function Home() {
           <button
             type="button"
             className="rounded mx-4 hover:scale-105 hover:bg-zinc-800 p-1 duration-300"
-            onClick={handleStats}
+            onClick={handleHeadlines}
           >
             Search
           </button>
@@ -70,7 +88,7 @@ export default function Home() {
                 </tr>
               </div>
               <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
-                <thead>dividends:</thead>
+                <thead>dividend information</thead>
                 <tr>
                   Yield: <td>{stats.dividendYield + "%"}</td>
                 </tr>
@@ -95,6 +113,13 @@ export default function Home() {
           <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
             📰 recent headlines
           </div>
+          {headlines ? (
+            <>
+              <p>{headlines.summary}</p>
+            </>
+          ) : (
+            <p>No data available. Please input a valid ticker</p>
+          )}
         </div>
       </div>
     </main>

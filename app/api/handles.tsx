@@ -5,11 +5,18 @@ export interface CompanyStats {
   dayHigh: number;
   dayLow: number;
   previousClose: number;
-  dividendRate: number;
-  dividendYield: number;
-  payoutRatio: number;
+  dividendRate: number | undefined;
+  dividendYield: number | undefined;
+  payoutRatio: number | undefined;
   currentPrice: number;
   shortName: string;
+}
+
+export interface CompanyNews {
+  headline: string;
+  source: string;
+  summary: string;
+  url: string;
 }
 
 const BASE_API_URL =
@@ -38,3 +45,17 @@ export async function getStats(ticker: string) {
   }
   return status;
 }
+
+export async function getHeadlines(ticker: string) {
+  let status = new Response();
+  const url = new URL("/headlines", BASE_API_URL);
+  try {
+    const response = await axios.get(url.href, {params: { ticker }, headers: { 'Accept': 'application/json' } });
+    const data = response.data;
+    status.responseData = data;
+  } catch (err) {
+    status.error = true;
+    status.responseData = err;
+  }
+  return status;
+};
