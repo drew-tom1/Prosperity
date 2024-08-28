@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function Home() {
   const [ticker, setTicker] = useState("");
   const [stats, setStats] = useState<CompanyStats | null>(null);
-  const [headlines, setHeadlines] = useState<CompanyNews | null>(null);
+  const [headlines, setHeadlines] = useState<CompanyNews[] | null>(null);
 
   async function handleStats() {
     const response = await getStats(ticker);
@@ -31,8 +31,7 @@ export default function Home() {
   }
 
   async function handleOptions () {
-    handleHeadlines();
-    handleStats();
+    await Promise.all([handleHeadlines(), handleStats()]);
   };
 
   return (
@@ -53,7 +52,7 @@ export default function Home() {
           <button
             type="button"
             className="rounded mx-4 hover:scale-105 hover:bg-zinc-800 p-1 duration-300"
-            onClick={handleHeadlines}
+            onClick={handleOptions}
           >
             Search
           </button>
@@ -71,33 +70,37 @@ export default function Home() {
             <>
               <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
                 <thead>{stats.shortName}</thead>
-                <tr>
-                  Current: <td>{"$" + stats.currentPrice}</td>
-                </tr>
-                <tr>
-                  Low (D): <td>{"$" + stats.dayLow}</td>
-                </tr>
-                <tr>
-                  High (D): <td>{"$" + stats.dayHigh}</td>
-                </tr>
-                <tr>
-                  Open (D): <td>{"$" + stats.open}</td>
-                </tr>
-                <tr>
-                  Close (D): <td>{"$" + stats.previousClose}</td>
-                </tr>
-              </div>
+                <table>
+                    <tr>
+                      Current: <td>{"$" + stats.currentPrice}</td>
+                    </tr>
+                    <tr>
+                      Low (D): <td>{"$" + stats.dayLow}</td>
+                    </tr>
+                    <tr>
+                      High (D): <td>{"$" + stats.dayHigh}</td>
+                    </tr>
+                    <tr>
+                      Open (D): <td>{"$" + stats.open}</td>
+                    </tr>
+                    <tr>
+                      Close (D): <td>{"$" + stats.previousClose}</td>
+                    </tr>
+                  </table>
+                </div>
               <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
                 <thead>dividend information</thead>
-                <tr>
-                  Yield: <td>{stats.dividendYield + "%"}</td>
-                </tr>
-                <tr>
-                  Rate <td>{"$" + stats.dividendRate}</td>
-                </tr>
-                <tr>
-                  Payout Ratio: <td>{"$" + stats.payoutRatio}</td>
-                </tr>
+                <table>
+                  <tr>
+                      Yield: <td>{stats.dividendYield + "%"}</td>
+                    </tr>
+                    <tr>
+                      Rate <td>{"$" + stats.dividendRate}</td>
+                    </tr>
+                    <tr>
+                      Payout Ratio: <td>{"$" + stats.payoutRatio}</td>
+                    </tr>
+                </table>
               </div>
             </>
           ) : (
@@ -113,13 +116,21 @@ export default function Home() {
           <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
             📰 recent headlines
           </div>
-          {headlines ? (
-            <>
-              <p>{headlines.summary}</p>
-            </>
-          ) : (
-            <p>No data available. Please input a valid ticker</p>
-          )}
+          {headlines?.map((headline, index) => {
+            return (
+              <table key={index} style={{ maxHeight: "row-span-2"}}>
+                <tbody>
+                  <tr>
+                    <td className="hover:scale-105 duration-300 p-3">
+                      <a href={headline.url}>
+                        {headline.headline}
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )
+          })}
         </div>
       </div>
     </main>

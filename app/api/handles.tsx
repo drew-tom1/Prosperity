@@ -47,15 +47,21 @@ export async function getStats(ticker: string) {
 }
 
 export async function getHeadlines(ticker: string) {
-  let status = new Response();
+  const acceptedSources = ["SeekingAlpha", "Yahoo"];
+  let status = new Response(false, []);
   const url = new URL("/headlines", BASE_API_URL);
   try {
     const response = await axios.get(url.href, {params: { ticker }, headers: { 'Accept': 'application/json' } });
     const data = response.data;
-    status.responseData = data;
+    for (let index = 0; index < response.data.length; index++) {
+      if (acceptedSources.includes(data[index].source)) {
+        status.responseData.push(data[index])
+      }
+    }
   } catch (err) {
     status.error = true;
     status.responseData = err;
   }
   return status;
+  
 };
