@@ -36,9 +36,9 @@ export default function Home() {
 
   return (
     <main className="p-4">
-      <div className="grid grid-cols-4 gap-5">
-        <div className="relative border border-primary rounded-lg p-4 row-span-1">
-          <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
+      <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="relative border border-primary rounded-lg p-4 sm:col-span-3 lg:col-span-1">
+          <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-indigo-400">
             🏢 ticker
           </div>
           <input
@@ -62,7 +62,7 @@ export default function Home() {
             💡 prediction graphs
           </div>
         </div>
-        <div className="relative border border-primary rounded-lg p-4 row-span-2">
+        <div className="relative border border-primary rounded-lg p-4 sm:col-span-3 lg:row-span-2 lg:col-span-1">
           <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-indigo-400">
             📈 current stats
           </div>
@@ -114,12 +114,30 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
+              <div className="relative border border-primary rounded-lg p-4 my-4">
+                <div className="font-bold">Quarterly Earnings Reports</div>
+                <table className="w-full">
+                  <tbody>
+                    <tr>
+                      <td>Yield:</td>
+                      <td>{stats.dividendYield + "%"}</td>
+                    </tr>
+                    <tr>
+                      <td>Rate:</td>
+                      <td>{"$" + stats.dividendRate}</td>
+                    </tr>
+                    <tr>
+                      <td>Payout Ratio:</td>
+                      <td>{"$" + stats.payoutRatio}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </>
           ) : (
             <p>No data available. Please search for a ticker</p>
           )}
         </div>
-
         <div className="relative border border-primary rounded-lg p-4 col-span-3">
           <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
             🤖 advice
@@ -131,13 +149,15 @@ export default function Home() {
           </div>
           {headlines?.map((headline, index) => {
             return (
-              <table key={index} style={{ maxHeight: "row-span-2"}}>
+              <table key={index}>
                 <tbody>
-                  <tr>
+                  <tr className="">
                     <td className="hover:scale-105 duration-300 p-3">
-                      <a href={headline.url}>
-                        {headline.headline}
-                      </a>
+                      <div>
+                        <a href={headline.url} target="_blank">
+                          {headline.headline} - {headline.source}
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
