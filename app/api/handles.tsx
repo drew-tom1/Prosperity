@@ -12,12 +12,20 @@ export interface CompanyStats {
   shortName: string;
 }
 
+export interface ExchangeStats {
+  legalType: string;
+  dayHigh: number;
+  dayLow: number;
+};
+
 export interface CompanyNews {
   headline: string;
   source: string;
   summary: string;
   url: string;
 }
+
+export type AssetStats = ExchangeStats | CompanyStats;
 
 const BASE_API_URL =
   process.env.REACT_APP_BASE_API_URL || "http://127.0.0.1:8000";
@@ -32,18 +40,19 @@ class Response {
   }
 }
 
-export async function getStats(ticker: string) {
-  let status = new Response();
+export async function getStats(ticker: string): Promise<AssetStats> {
   const url = new URL("/performance", BASE_API_URL);
   try {
     const response = await axios.post(url.href, { ticker });
     const data = response.data;
-    status.responseData = data;
+    if ("legalType" in data) {
+      return data as ExchangeStats
+    } else {
+      return data as CompanyStats
+    }
   } catch (err) {
-    status.error = true;
-    status.responseData = err;
+    throw new Error(`Failed to fetch information, ${err}`)
   }
-  return status;
 }
 
 export async function getHeadlines(ticker: string) {
@@ -51,11 +60,14 @@ export async function getHeadlines(ticker: string) {
   let status = new Response(false, []);
   const url = new URL("/headlines", BASE_API_URL);
   try {
-    const response = await axios.get(url.href, {params: { ticker }, headers: { 'Accept': 'application/json' } });
+    const response = await axios.get(url.href, {
+      params: { ticker },
+      headers: { Accept: "application/json" },
+    });
     const data = response.data;
     for (let index = 0; index < response.data.length; index++) {
       if (acceptedSources.includes(data[index].source)) {
-        status.responseData.push(data[index])
+        status.responseData.push(data[index]);
       }
     }
   } catch (err) {
@@ -63,5 +75,4 @@ export async function getHeadlines(ticker: string) {
     status.responseData = err;
   }
   return status;
-  
-};
+}

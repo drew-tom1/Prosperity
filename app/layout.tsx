@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-}
+};
 
 export default function RootLayout({
   children,
@@ -21,7 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${text.className} bg-background text-foreground dark:bg-background dark:text-foreground`}>
+    <html
+      lang="en"
+      className={`${text.className} bg-background text-foreground dark:bg-background dark:text-foreground`}
+    >
       <body className="antialiased w-full mx-auto mt-8 lg:mx-auto">
         <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
           {children}
@@ -30,4 +33,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -1,38 +1,55 @@
 "use client";
 
-import { getStats, CompanyStats, CompanyNews, getHeadlines } from "@/app/api/handles";
-import { Chart } from "chart.js";
+import {
+  getStats,
+  CompanyStats,
+  CompanyNews,
+  getHeadlines,
+  ExchangeStats,
+  AssetStats,
+} from "@/app/api/handles";
 import { useState } from "react";
 
 export default function Home() {
   const [ticker, setTicker] = useState("");
-  const [stats, setStats] = useState<CompanyStats | null>(null);
+  const [stats, setStats] = useState<AssetStats | null>(null);
   const [headlines, setHeadlines] = useState<CompanyNews[] | null>(null);
+  const [type, setType] = useState(false) // false -> Company | true -> ETF
 
   async function handleStats() {
-    const response = await getStats(ticker);
+    try {
+      const response = await getStats(ticker);
+        const renderedStats = { ...response };
+        if ('legalType' in renderedStats) {
+          setStats(renderedStats as ExchangeStats);
+          setType(true)
+          console.log(renderedStats)
+        } else {
+          if (renderedStats.dividendYield !== undefined) {
+            renderedStats.dividendYield *= 100;
+          }
+          setStats(renderedStats as CompanyStats);
+          setType(false)
+          console.log(renderedStats)
+        }
+        return true;
+      } catch (err) {
+        return false;
+    }
+  }
+  
+  async function handleHeadlines() {
+    const response = await getHeadlines(ticker);
     if (!response.error) {
-      const renderedStats = { ...response.responseData };
-      if (renderedStats.dividendYield !== undefined) {
-        renderedStats.dividendYield *= 100;
-      }
-      setStats(renderedStats);
+      setHeadlines(response.responseData);
       return true;
     }
     return false;
   }
-  async function handleHeadlines () {
-    const response = await getHeadlines(ticker);
-    if (!response.error) {
-      setHeadlines(response.responseData)
-      return true
-    }
-    return false;
-  }
 
-  async function handleOptions () {
+  async function handleOptions() {
     await Promise.all([handleHeadlines(), handleStats()]);
-  };
+  }
 
   return (
     <main className="p-4">
@@ -69,9 +86,9 @@ export default function Home() {
           {stats ? (
             <>
               <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
-              <table className="w-full">
+                <table className="w-full">
                   <tbody>
-                  <thead className="font-bold">{stats.shortName}</thead>
+                    <thead className="font-bold">{stats.shortName}</thead>
                     <tr>
                       <td>Current:</td>
                       <td>{"$" + stats.currentPrice}</td>
@@ -153,16 +170,14 @@ export default function Home() {
                 <tbody>
                   <tr className="">
                     <td className="hover:scale-105 duration-300 p-3">
-                      <div>
                         <a href={headline.url} target="_blank">
                           {headline.headline} - {headline.source}
                         </a>
-                      </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
-            )
+            );
           })}
         </div>
       </div>
