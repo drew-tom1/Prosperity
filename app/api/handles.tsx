@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export interface CompanyStats {
+  industry: string;
   open: number;
   dayHigh: number;
   dayLow: number;
@@ -15,8 +16,16 @@ export interface CompanyStats {
 export interface ExchangeStats {
   legalType: string;
   dayHigh: number;
+  open: number;
   dayLow: number;
-};
+  previousClose: number;
+  ask: number;
+  shortName: string;
+  yield: number;
+  ytdReturn: number;
+}
+
+export type AssetStats = ExchangeStats | CompanyStats;
 
 export interface CompanyNews {
   headline: string;
@@ -24,8 +33,6 @@ export interface CompanyNews {
   summary: string;
   url: string;
 }
-
-export type AssetStats = ExchangeStats | CompanyStats;
 
 const BASE_API_URL =
   process.env.REACT_APP_BASE_API_URL || "http://127.0.0.1:8000";
@@ -40,19 +47,19 @@ class Response {
   }
 }
 
-export async function getStats(ticker: string): Promise<AssetStats> {
+export async function getStats(ticker: string) {
+  let status = new Response();
   const url = new URL("/performance", BASE_API_URL);
   try {
     const response = await axios.post(url.href, { ticker });
     const data = response.data;
-    if ("legalType" in data) {
-      return data as ExchangeStats
-    } else {
-      return data as CompanyStats
-    }
+    status.responseData = data;
+    console.log(data);
   } catch (err) {
-    throw new Error(`Failed to fetch information, ${err}`)
+    status.error = true;
+    status.responseData = err;
   }
+  return status;
 }
 
 export async function getHeadlines(ticker: string) {

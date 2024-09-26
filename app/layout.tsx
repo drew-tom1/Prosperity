@@ -5,7 +5,7 @@ import "./globals.css";
 const text = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "tourmaline",
+  title: "Prosperity",
   description:
     "web application that can retrieve historical performance data of a company and predict its future value.",
 };

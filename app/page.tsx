@@ -2,11 +2,9 @@
 
 import {
   getStats,
-  CompanyStats,
+  AssetStats,
   CompanyNews,
   getHeadlines,
-  ExchangeStats,
-  AssetStats,
 } from "@/app/api/handles";
 import { useState } from "react";
 
@@ -14,30 +12,23 @@ export default function Home() {
   const [ticker, setTicker] = useState("");
   const [stats, setStats] = useState<AssetStats | null>(null);
   const [headlines, setHeadlines] = useState<CompanyNews[] | null>(null);
-  const [type, setType] = useState(false) // false -> Company | true -> ETF
 
-  async function handleStats() {
-    try {
-      const response = await getStats(ticker);
-        const renderedStats = { ...response };
-        if ('legalType' in renderedStats) {
-          setStats(renderedStats as ExchangeStats);
-          setType(true)
-          console.log(renderedStats)
-        } else {
-          if (renderedStats.dividendYield !== undefined) {
-            renderedStats.dividendYield *= 100;
-          }
-          setStats(renderedStats as CompanyStats);
-          setType(false)
-          console.log(renderedStats)
-        }
-        return true;
-      } catch (err) {
-        return false;
+  async function handleStats() { //refactor this to handle either ExchangeStats or CompanyStats
+    const response = await getStats(ticker);
+    if (!response.error) {
+      const renderedStats = { ...response.responseData };
+      if (renderedStats.dividendYield !== undefined) {
+        renderedStats.dividendYield *= 100;
+      }
+      if (renderedStats.yield !== undefined && renderedStats.ytdReturn !== undefined) {
+        renderedStats.yield *= 100;
+        renderedStats.ytdReturn *= 100;
+      }
+      setStats(renderedStats);
+      return true;
     }
+    return false;
   }
-  
   async function handleHeadlines() {
     const response = await getHeadlines(ticker);
     if (!response.error) {
@@ -55,7 +46,7 @@ export default function Home() {
     <main className="p-4">
       <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
         <div className="relative border border-primary rounded-lg p-4 sm:col-span-3 lg:col-span-1">
-          <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-indigo-400">
+          <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-primary">
             🏢 ticker
           </div>
           <input
@@ -75,93 +66,130 @@ export default function Home() {
           </button>
         </div>
         <div className="relative border border-primary rounded-lg p-4 col-span-3">
-          <div className="absolute rounded -top-4 bg-background dark:bg-background px-2 text-lg text-indigo-400">
+          <div className="absolute rounded -top-4 bg-background dark:bg-background px-2 text-lg text-primary">
             💡 prediction graphs
           </div>
         </div>
         <div className="relative border border-primary rounded-lg p-4 sm:col-span-3 lg:row-span-2 lg:col-span-1">
-          <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-indigo-400">
+          <div className="absolute -top-4 bg-background dark:bg-background px-2 text-lg text-primary">
             📈 current stats
           </div>
           {stats ? (
-            <>
-              <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
-                <table className="w-full">
-                  <tbody>
-                    <thead className="font-bold">{stats.shortName}</thead>
-                    <tr>
-                      <td>Current:</td>
-                      <td>{"$" + stats.currentPrice}</td>
-                    </tr>
-                    <tr>
-                      <td>Low (D):</td>
-                      <td>{"$" + stats.dayLow}</td>
-                    </tr>
-                    <tr>
-                      <td>High (D):</td>
-                      <td>{"$" + stats.dayHigh}</td>
-                    </tr>
-                    <tr>
-                      <td>Open (D):</td>
-                      <td>{"$" + stats.open}</td>
-                    </tr>
-                    <tr>
-                      <td>Close (D):</td>
-                      <td>{"$" + stats.previousClose}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="relative border border-primary rounded-lg p-4 my-4">
-                <div className="font-bold">Dividend Information</div>
-                <table className="w-full">
-                  <tbody>
-                    <tr>
-                      <td>Yield:</td>
-                      <td>{stats.dividendYield + "%"}</td>
-                    </tr>
-                    <tr>
-                      <td>Rate:</td>
-                      <td>{"$" + stats.dividendRate}</td>
-                    </tr>
-                    <tr>
-                      <td>Payout Ratio:</td>
-                      <td>{"$" + stats.payoutRatio}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="relative border border-primary rounded-lg p-4 my-4">
-                <div className="font-bold">Quarterly Earnings Reports</div>
-                <table className="w-full">
-                  <tbody>
-                    <tr>
-                      <td>Yield:</td>
-                      <td>{stats.dividendYield + "%"}</td>
-                    </tr>
-                    <tr>
-                      <td>Rate:</td>
-                      <td>{"$" + stats.dividendRate}</td>
-                    </tr>
-                    <tr>
-                      <td>Payout Ratio:</td>
-                      <td>{"$" + stats.payoutRatio}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </>
+            "industry" in stats ? (
+              <>
+                <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
+                  <table className="w-full">
+                    <tbody>
+                      <thead className="font-bold">{stats.shortName}</thead>
+                      <tr>
+                        <td>Current:</td>
+                        <td>{"$" + stats.currentPrice.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Low (D):</td>
+                        <td>{"$" + stats.dayLow.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>High (D):</td>
+                        <td>{"$" + stats.dayHigh.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Open (D):</td>
+                        <td>{"$" + stats.open.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Close (D):</td>
+                        <td>{"$" + stats.previousClose.toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="relative border border-primary rounded-lg p-4 my-4">
+                  <div className="font-bold">Dividend Information</div>
+                  <table className="w-full">
+                    <tbody>
+                      <tr>
+                        <td>Yield:</td>
+                        <td>{stats?.dividendYield ? stats.dividendYield.toFixed(2) + "%": "N/A"}</td> 
+                      </tr>
+                      <tr>
+                        <td>Rate:</td>
+                        <td>{stats?.dividendRate ? "$" + stats.dividendRate.toFixed(2) : "N/A"}</td>
+                      </tr>
+                      <tr>
+                        <td>Payout Ratio:</td>
+                        <td>{stats?.payoutRatio ? "$" + stats.payoutRatio.toFixed(2) : "N/A"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="relative border border-primary rounded-lg p-4 my-4">
+                  <div className="font-bold">Quarterly Earnings Reports</div>
+                  <p>to be implemented</p>
+                  <table className="w-full">
+                    <tbody>
+                      <tr></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : "legalType" in stats ? (
+              <>
+                <div className="relative border border-primary rounded-lg p-4 row-span-3 my-4">
+                  <table className="w-full">
+                    <tbody>
+                      <thead className="font-bold">{stats.shortName}</thead>
+                      <tr>
+                        <td>Current:</td>
+                        <td>{"$" + stats.ask.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Low (D):</td>
+                        <td>{"$" + stats.dayLow.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>High (D):</td>
+                        <td>{"$" + stats.dayHigh.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Open (D):</td>
+                        <td>{"$" + stats.open.toFixed(2)}</td>
+                      </tr>
+                      <tr>
+                        <td>Close (D):</td>
+                        <td>{"$" + stats.previousClose.toFixed(2)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="relative border border-primary rounded-lg p-4 my-4">
+                  <div className="font-bold">Dividend Information</div>
+                  <table className="w-full">
+                    <tbody>
+                      <tr>
+                        <td>Yield:</td>
+                        <td>{stats.yield.toFixed(2) + "%"}</td>
+                      </tr>
+                      <tr>
+                        <td>Year-to-Date Return:</td>
+                        <td>{stats.ytdReturn.toFixed(2) + "%"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            ) : null
           ) : (
             <p>No data available. Please search for a ticker</p>
           )}
         </div>
         <div className="relative border border-primary rounded-lg p-4 col-span-3">
-          <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
+          <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-primary">
             🤖 advice
           </div>
         </div>
         <div className="relative border border-primary rounded-lg p-4 col-span-3">
-          <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-indigo-400">
+          <div className="absolute -top-4  bg-background dark:bg-background px-2 text-lg text-primary">
             📰 recent headlines
           </div>
           {headlines?.map((headline, index) => {
@@ -170,9 +198,11 @@ export default function Home() {
                 <tbody>
                   <tr className="">
                     <td className="hover:scale-105 duration-300 p-3">
+                      <div>
                         <a href={headline.url} target="_blank">
                           {headline.headline} - {headline.source}
                         </a>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
