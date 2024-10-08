@@ -35,7 +35,7 @@ export interface CompanyNews {
 }
 
 const BASE_API_URL =
-  process.env.REACT_APP_BASE_API_URL || "http://127.0.0.1:8000";
+  process.env.REACT_APP_BASE_API_URL || "http://0.0.0.0:8080";
 
 class Response {
   error: boolean;
