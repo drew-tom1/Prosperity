@@ -34,7 +34,7 @@ export interface CompanyNews {
   url: string;
 }
 
-const BASE_API_URL = process.env.REACT_APP_BASE_API_URL;
+const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_BASE_API_URL;
 
 class Response {
   error: boolean;
